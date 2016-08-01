@@ -1,132 +1,73 @@
 package com.grebesche.servicelauncher;
 
-import com.grebesche.servicelauncher.actions.StartServiceExecutor;
 import com.grebesche.servicelauncher.model.ApplicationModel;
 import com.grebesche.servicelauncher.model.Service;
-import com.grebesche.servicelauncher.pref.ServicePreferences;
+import com.grebesche.servicelauncher.ui.ServiceEditorUI;
+import com.grebesche.servicelauncher.ui.ServiceUI;
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.TextField;
-import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
-import javafx.stage.DirectoryChooser;
-import javafx.stage.Modality;
 import javafx.stage.Stage;
 
-import java.io.File;
+import java.util.HashMap;
+import java.util.Map;
 
-public class Main extends Application implements StartServiceExecutor {
+public class Main extends Application {
 
   private ApplicationModel applicationModel;
+  private ServiceEditorUI serviceEditorUI;
+  private VBox mainLayout;
+  private Map<String, ServiceUI> servicesUIMap = new HashMap<>();
 
   @Override
   public void start(Stage primaryStage) throws Exception {
 
+    serviceEditorUI = new ServiceEditorUI(primaryStage);
     applicationModel = new ApplicationModel();
 
-    VBox stackPane = new VBox();
 
-    Button addModuleButton = new Button("add module");
-    addModuleButton.setOnMouseClicked(event -> {
-      /*DirectoryChooser chooser = new DirectoryChooser();
-      chooser.setTitle("Module folder");
-      File selectedDirectory = chooser.showDialog(primaryStage);*/
+    serviceEditorUI.setEditedServiceCallback(this::applyEditedService);
 
-      /*ServicePreferences module = new ServicePreferences();
-      module.setPath(selectedDirectory.getAbsolutePath());
-      module.setFolderName(selectedDirectory.getName());
-      userPreferences.getServices().add(module);
+    mainLayout = new VBox();
 
-      Service service = new Service();
-      service.addStep();
-      applicationModel.getServices().add(service);
-
-      addModuleToUI(module, stackPane);*/
-      editServicePopup(primaryStage);
+    Button addServiceButton = new Button("add service");
+    addServiceButton.setOnMouseClicked(event -> {
+      serviceEditorUI.show(null);
     });
-    stackPane.getChildren().add(addModuleButton);
+    mainLayout.getChildren().add(addServiceButton);
 
     primaryStage.setTitle("Service launcher");
-    primaryStage.setScene(new Scene(stackPane, 300, 275));
+    primaryStage.setScene(new Scene(mainLayout, 300, 275));
     primaryStage.show();
   }
 
-  private void editServicePopup(Stage primaryStage) {
-    final Stage dialog = new Stage();
-    dialog.initModality(Modality.APPLICATION_MODAL);
-    dialog.initOwner(primaryStage);
-    VBox dialogVbox = new VBox(20);
-
-    // name
-    HBox nameHBox = new HBox();
-    Label nameLabel = new Label("name");
-    TextField nameTextField = new TextField();
-    nameHBox.getChildren().add(nameLabel);
-    nameHBox.getChildren().add(nameTextField);
-    dialogVbox.getChildren().add(nameHBox);
-
-    // step 1
-    VBox stepVBox = new VBox();
-
-    stepVBox.getChildren().add(new Label("Step 1"));
-
-    HBox stepFolderHBox = new HBox();
-    Label stepFolderLabel = new Label("directory");
-    TextField stepFolderField = new TextField();
-    stepFolderHBox.getChildren().add(stepFolderLabel);
-    stepFolderHBox.getChildren().add(stepFolderField);
-    Button stepChooseDirectoryButton = new Button("Choose directory");
-    stepChooseDirectoryButton.setOnMouseClicked(event -> {
-      DirectoryChooser chooser = new DirectoryChooser();
-      chooser.setTitle("Module folder");
-      File selectedDirectory = chooser.showDialog(primaryStage);
-      stepFolderField.setText(selectedDirectory.getAbsolutePath());
-    });
-    stepFolderHBox.getChildren().add(stepChooseDirectoryButton);
-    stepVBox.getChildren().add(stepFolderHBox);
-
-    HBox commandHBox = new HBox();
-    Label commandLabel = new Label("command");
-    TextField commandTextField = new TextField();
-    commandHBox.getChildren().add(commandLabel);
-    commandHBox.getChildren().add(commandTextField);
-    stepVBox.getChildren().add(commandHBox);
-
-    HBox actionHBox = new HBox();
-    Button okButton = new Button("Ok");
-    okButton.setOnMouseClicked(event -> {
-      Service service = new Service();
-      service.addStep(stepFolderField.getText(), commandTextField.getText());
+  private void applyEditedService(Service service) {
+    int indexOf = applicationModel.getServices().indexOf(service);
+    if (indexOf != -1) {
+      applicationModel.getServices().set(indexOf, service);
+      ServiceUI serviceUI = servicesUIMap.get(service.getId());
+      serviceUI.setService(service);
+    } else {
       applicationModel.getServices().add(service);
-      dialog.close();
-    });
-    Button cancelButton = new Button("Cancel");
-    cancelButton.setOnMouseClicked(event -> dialog.close());
-    actionHBox.getChildren().add(okButton);
-    actionHBox.getChildren().add(cancelButton);
-    stepVBox.getChildren().add(actionHBox);
-
-    dialogVbox.getChildren().add(stepVBox);
-
-    Scene dialogScene = new Scene(dialogVbox, 300, 200);
-    dialog.setScene(dialogScene);
-    dialog.show();
+      addServiceToUI(service);
+    }
   }
 
-  private void addModuleToUI(ServicePreferences service, VBox stackPane) {
-    HBox pane = new HBox();
-    Label label = new Label(service.getFolderName());
-    pane.getChildren().add(label);
-    Button startButton = new Button("startService");
-    pane.getChildren().add(startButton);
-    startButton.setOnMouseClicked(event -> startService(service));
-    stackPane.getChildren().add(pane);
+  private void addServiceToUI(final Service service) {
+    ServiceUI serviceUI = new ServiceUI();
+    serviceUI.setService(service);
+    serviceUI.setStartServiceExecutor(() -> startService(service));
+    serviceUI.setEditServiceExecutor(() -> editService(service));
+    servicesUIMap.put(service.getId(), serviceUI);
+    mainLayout.getChildren().add(serviceUI.getContainer());
   }
 
-  @Override
-  public void startService(ServicePreferences module) {
+  private void editService(Service service) {
+    serviceEditorUI.show(service);
+  }
+
+  public void startService(Service module) {
 
   }
 

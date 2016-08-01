@@ -1,6 +1,6 @@
 package com.grebesche.servicelauncher.actions;
 
 @FunctionalInterface
-public interface StartServiceExecutor {
-  void start();
+public interface EditServiceCallback {
+  void edit();
 }
