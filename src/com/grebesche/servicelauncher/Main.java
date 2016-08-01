@@ -5,12 +5,14 @@ import com.grebesche.servicelauncher.model.Service;
 import com.grebesche.servicelauncher.ui.ServiceEditorUI;
 import com.grebesche.servicelauncher.ui.ServiceUI;
 import javafx.application.Application;
+import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 
 public class Main extends Application {
@@ -25,10 +27,7 @@ public class Main extends Application {
 
     serviceEditorUI = new ServiceEditorUI(primaryStage);
     applicationModel = new ApplicationModel();
-
-
     serviceEditorUI.setEditedServiceCallback(this::applyEditedService);
-
     mainLayout = new VBox();
 
     Button addServiceButton = new Button("add service");
@@ -50,24 +49,34 @@ public class Main extends Application {
       serviceUI.setService(service);
     } else {
       applicationModel.getServices().add(service);
-      addServiceToUI(service);
+      ServiceUI serviceUI = new ServiceUI();
+      serviceUI.setService(service);
+      serviceUI.setStartServiceExecutor(() -> startService(service));
+      serviceUI.setEditServiceExecutor(() -> editService(service));
+      serviceUI.setDeleteServiceExecutor(() -> deleteService(service));
+      servicesUIMap.put(service.getId(), serviceUI);
+      mainLayout.getChildren().add(serviceUI.getContainer());
     }
   }
 
-  private void addServiceToUI(final Service service) {
-    ServiceUI serviceUI = new ServiceUI();
-    serviceUI.setService(service);
-    serviceUI.setStartServiceExecutor(() -> startService(service));
-    serviceUI.setEditServiceExecutor(() -> editService(service));
-    servicesUIMap.put(service.getId(), serviceUI);
-    mainLayout.getChildren().add(serviceUI.getContainer());
+  private void deleteService(Service service) {
+    ServiceUI serviceUI = servicesUIMap.remove(service.getId());
+    Iterator<Node> iterator = mainLayout.getChildren().iterator();
+    while (iterator.hasNext()) {
+      Node node = iterator.next();
+      if(node.equals(serviceUI.getContainer())) {
+        iterator.remove();
+        break;
+      }
+    }
+    applicationModel.getServices().remove(service);
   }
 
   private void editService(Service service) {
     serviceEditorUI.show(service);
   }
 
-  public void startService(Service module) {
+  public void startService(Service service) {
 
   }
 

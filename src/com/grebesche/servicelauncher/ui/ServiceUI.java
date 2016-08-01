@@ -1,5 +1,6 @@
 package com.grebesche.servicelauncher.ui;
 
+import com.grebesche.servicelauncher.actions.DeleteServiceCallback;
 import com.grebesche.servicelauncher.actions.EditServiceCallback;
 import com.grebesche.servicelauncher.actions.StartServiceExecutor;
 import com.grebesche.servicelauncher.model.Service;
@@ -11,23 +12,26 @@ public class ServiceUI {
 
   private HBox container;
   private Label label;
-  private Button startButton;
-  private Button editButton;
   private StartServiceExecutor startServiceExecutor;
   private EditServiceCallback editServiceExecutor;
+  private DeleteServiceCallback deleteServiceExecutor;
 
   public ServiceUI() {
     container = new HBox();
     label = new Label();
     container.getChildren().add(label);
-    startButton = new Button();
+    Button startButton = new Button();
     startButton.setText("start");
-    container.getChildren().add(startButton);
-    editButton = new Button();
-    editButton.setText("edit");
-    container.getChildren().add(editButton);
     startButton.setOnMouseClicked(event -> startServiceExecutor.start());
+    container.getChildren().add(startButton);
+    Button editButton = new Button();
+    editButton.setText("edit");
     editButton.setOnMouseClicked(event -> editServiceExecutor.edit());
+    container.getChildren().add(editButton);
+    Button deleteButton = new Button();
+    deleteButton.setText("delete");
+    deleteButton.setOnMouseClicked(event -> deleteServiceExecutor.delete());
+    container.getChildren().add(deleteButton);
   }
 
   public HBox getContainer() {
@@ -42,8 +46,11 @@ public class ServiceUI {
     this.editServiceExecutor = editServiceExecutor;
   }
 
+  public void setDeleteServiceExecutor(DeleteServiceCallback deleteServiceExecutor) {
+    this.deleteServiceExecutor = deleteServiceExecutor;
+  }
+
   public void setService(final Service service) {
     label.setText(service.getName());
-
   }
 }
