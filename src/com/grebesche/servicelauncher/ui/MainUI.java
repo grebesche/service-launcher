@@ -27,7 +27,7 @@ public class MainUI {
 
     Button addServiceButton = new Button("add service");
     addServiceButton.setOnMouseClicked(event -> {
-      serviceEditorUI.show(null);
+      serviceEditorUI.show(new Service());
     });
     mainLayout.getChildren().add(addServiceButton);
 

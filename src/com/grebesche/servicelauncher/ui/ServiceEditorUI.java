@@ -1,23 +1,33 @@
 package com.grebesche.servicelauncher.ui;
 
 import com.grebesche.servicelauncher.actions.EditedServiceCallback;
+import com.grebesche.servicelauncher.model.ExecutionStep;
 import com.grebesche.servicelauncher.model.Service;
+import javafx.event.EventHandler;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
-import javafx.stage.DirectoryChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 
-import java.io.File;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class ServiceEditorUI {
 
   private Stage primaryStage;
   private EditedServiceCallback editedServiceCallback;
+  private VBox stepsContainer;
+  private TextField nameTextField;
+  private Map<String, ServiceStepEditorUI> stepsMap = new HashMap<>();
+  private int currentNumberOfSteps = 0;
 
   public ServiceEditorUI(Stage primaryStage) {
     this.primaryStage = primaryStage;
@@ -28,7 +38,6 @@ public class ServiceEditorUI {
   }
 
   public void show(Service service) {
-    final Service finalService = service != null ? service : new Service();
 
     final Stage dialog = new Stage();
     dialog.initModality(Modality.APPLICATION_MODAL);
@@ -38,57 +47,69 @@ public class ServiceEditorUI {
     // name
     HBox nameHBox = new HBox();
     Label nameLabel = new Label("name");
-    TextField nameTextField = new TextField();
-    nameTextField.setText(finalService.getName());
+    nameTextField = new TextField();
+    nameTextField.setText(service.getName());
     nameHBox.getChildren().add(nameLabel);
     nameHBox.getChildren().add(nameTextField);
     dialogVbox.getChildren().add(nameHBox);
 
-    // step 1
-    VBox stepVBox = new VBox();
+    Button addStepButton = new Button("add step");
+    addStepButton.setOnMouseClicked(event -> addStep(new ExecutionStep("", "")));
+    dialogVbox.getChildren().add(addStepButton);
 
-    stepVBox.getChildren().add(new Label("Step 1"));
+    stepsContainer = new VBox();
 
-    HBox stepFolderHBox = new HBox();
-    Label stepFolderLabel = new Label("directory");
-    TextField stepFolderField = new TextField();
-    stepFolderHBox.getChildren().add(stepFolderLabel);
-    stepFolderHBox.getChildren().add(stepFolderField);
-    Button stepChooseDirectoryButton = new Button("Choose directory");
-    stepChooseDirectoryButton.setOnMouseClicked(event -> {
-      DirectoryChooser chooser = new DirectoryChooser();
-      chooser.setTitle("Module folder");
-      File selectedDirectory = chooser.showDialog(primaryStage);
-      stepFolderField.setText(selectedDirectory.getAbsolutePath());
-    });
-    stepFolderHBox.getChildren().add(stepChooseDirectoryButton);
-    stepVBox.getChildren().add(stepFolderHBox);
+    if(service.getExecutionSteps().size() == 0) {
+      // bootstrap 1 empty step
+      addStep(new ExecutionStep("", ""));
+    } else {
+      service.getExecutionSteps().forEach(this::addStep);
+    }
 
-    HBox commandHBox = new HBox();
-    Label commandLabel = new Label("command");
-    TextField commandTextField = new TextField();
-    commandHBox.getChildren().add(commandLabel);
-    commandHBox.getChildren().add(commandTextField);
-    stepVBox.getChildren().add(commandHBox);
+    dialogVbox.getChildren().add(stepsContainer);
 
+    addActionButtons(service, dialog, dialogVbox);
+
+    Scene dialogScene = new Scene(dialogVbox, 300, 200);
+    dialog.setScene(dialogScene);
+    dialog.show();
+  }
+
+  private void addActionButtons(Service service, Stage dialog, VBox dialogVbox) {
     HBox actionHBox = new HBox();
     Button okButton = new Button("Ok");
     okButton.setOnMouseClicked(event -> {
-      finalService.addStep(stepFolderField.getText(), commandTextField.getText());
-      finalService.setName(nameTextField.getText());
-      editedServiceCallback.serviceEdited(finalService);
+      populateServiceData(service);
+      editedServiceCallback.serviceEdited(service);
       dialog.close();
     });
     Button cancelButton = new Button("Cancel");
     cancelButton.setOnMouseClicked(event -> dialog.close());
     actionHBox.getChildren().add(okButton);
     actionHBox.getChildren().add(cancelButton);
-    stepVBox.getChildren().add(actionHBox);
+    dialogVbox.getChildren().add(actionHBox);
+  }
 
-    dialogVbox.getChildren().add(stepVBox);
+  private void populateServiceData(Service finalService) {
+    finalService.setName(nameTextField.getText());
 
-    Scene dialogScene = new Scene(dialogVbox, 300, 200);
-    dialog.setScene(dialogScene);
-    dialog.show();
+    List<ServiceStepEditorUI> steps = new ArrayList<>(stepsMap.values());
+    Collections.sort(steps, (o1, o2) -> o1.getStepNumber().compareTo(o2.getStepNumber()));
+    finalService.getExecutionSteps().clear();
+    for (ServiceStepEditorUI step : steps) {
+      finalService.getExecutionSteps().add(new ExecutionStep(
+          step.getFolder(), step.getCommand()));
+    }
+  }
+
+  private void addStep(ExecutionStep step) {
+    currentNumberOfSteps++;
+    ServiceStepEditorUI serviceStepEditorUI = new ServiceStepEditorUI(currentNumberOfSteps, step, primaryStage);
+    serviceStepEditorUI.setDeleteStepCallback(() -> {
+      stepsContainer.getChildren().remove(serviceStepEditorUI.getContainer());
+      stepsMap.remove(step.getId());
+    });
+    stepsMap.put(step.getId(), serviceStepEditorUI);
+    stepsContainer.getChildren().add(serviceStepEditorUI.getContainer());
   }
 }

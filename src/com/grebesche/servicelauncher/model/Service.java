@@ -28,12 +28,8 @@ public class Service {
     this.name = name;
   }
 
-  public void addStep(String path, String command) {
-    executionSteps.add(new ExecutionStep(path, command));
-  }
-
   public List<ExecutionStep> getExecutionSteps() {
-    return Collections.unmodifiableList(executionSteps);
+    return executionSteps;
   }
 
   public void start() {
