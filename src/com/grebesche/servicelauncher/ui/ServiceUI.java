@@ -1,8 +1,6 @@
 package com.grebesche.servicelauncher.ui;
 
-import com.grebesche.servicelauncher.actions.DeleteServiceCallback;
-import com.grebesche.servicelauncher.actions.EditServiceCallback;
-import com.grebesche.servicelauncher.actions.StartServiceExecutor;
+import com.grebesche.servicelauncher.actions.ActionCallback;
 import com.grebesche.servicelauncher.model.Service;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -12,9 +10,9 @@ public class ServiceUI {
 
   private HBox container;
   private Label label;
-  private StartServiceExecutor startServiceExecutor;
-  private EditServiceCallback editServiceExecutor;
-  private DeleteServiceCallback deleteServiceExecutor;
+  private ActionCallback startServiceExecutor;
+  private ActionCallback editServiceExecutor;
+  private ActionCallback deleteServiceExecutor;
 
   public ServiceUI() {
     container = new HBox();
@@ -22,15 +20,15 @@ public class ServiceUI {
     container.getChildren().add(label);
     Button startButton = new Button();
     startButton.setText("start");
-    startButton.setOnMouseClicked(event -> startServiceExecutor.start());
+    startButton.setOnMouseClicked(event -> startServiceExecutor.execute());
     container.getChildren().add(startButton);
     Button editButton = new Button();
     editButton.setText("edit");
-    editButton.setOnMouseClicked(event -> editServiceExecutor.edit());
+    editButton.setOnMouseClicked(event -> editServiceExecutor.execute());
     container.getChildren().add(editButton);
     Button deleteButton = new Button();
     deleteButton.setText("delete");
-    deleteButton.setOnMouseClicked(event -> deleteServiceExecutor.delete());
+    deleteButton.setOnMouseClicked(event -> deleteServiceExecutor.execute());
     container.getChildren().add(deleteButton);
   }
 
@@ -38,15 +36,15 @@ public class ServiceUI {
     return container;
   }
 
-  public void setStartServiceExecutor(StartServiceExecutor startServiceExecutor) {
+  public void setStartServiceExecutor(ActionCallback startServiceExecutor) {
     this.startServiceExecutor = startServiceExecutor;
   }
 
-  public void setEditServiceExecutor(EditServiceCallback editServiceExecutor) {
+  public void setEditServiceExecutor(ActionCallback editServiceExecutor) {
     this.editServiceExecutor = editServiceExecutor;
   }
 
-  public void setDeleteServiceExecutor(DeleteServiceCallback deleteServiceExecutor) {
+  public void setDeleteServiceExecutor(ActionCallback deleteServiceExecutor) {
     this.deleteServiceExecutor = deleteServiceExecutor;
   }
 

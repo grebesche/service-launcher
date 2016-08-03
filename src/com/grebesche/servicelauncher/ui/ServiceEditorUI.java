@@ -3,12 +3,10 @@ package com.grebesche.servicelauncher.ui;
 import com.grebesche.servicelauncher.actions.EditedServiceCallback;
 import com.grebesche.servicelauncher.model.ExecutionStep;
 import com.grebesche.servicelauncher.model.Service;
-import javafx.event.EventHandler;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
@@ -59,7 +57,7 @@ public class ServiceEditorUI {
 
     stepsContainer = new VBox();
 
-    if(service.getExecutionSteps().size() == 0) {
+    if (service.getExecutionSteps().size() == 0) {
       // bootstrap 1 empty step
       addStep(new ExecutionStep("", ""));
     } else {
@@ -70,7 +68,7 @@ public class ServiceEditorUI {
 
     addActionButtons(service, dialog, dialogVbox);
 
-    Scene dialogScene = new Scene(dialogVbox, 300, 200);
+    Scene dialogScene = new Scene(dialogVbox, 500, 500);
     dialog.setScene(dialogScene);
     dialog.show();
   }

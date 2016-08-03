@@ -32,7 +32,7 @@ public class MainUI {
     mainLayout.getChildren().add(addServiceButton);
 
     primaryStage.setTitle("Service launcher");
-    primaryStage.setScene(new Scene(mainLayout, 300, 275));
+    primaryStage.setScene(new Scene(mainLayout, 500, 500));
     primaryStage.show();
   }
 
@@ -59,7 +59,7 @@ public class MainUI {
     Iterator<Node> iterator = mainLayout.getChildren().iterator();
     while (iterator.hasNext()) {
       Node node = iterator.next();
-      if(node.equals(serviceUI.getContainer())) {
+      if (node.equals(serviceUI.getContainer())) {
         iterator.remove();
         break;
       }

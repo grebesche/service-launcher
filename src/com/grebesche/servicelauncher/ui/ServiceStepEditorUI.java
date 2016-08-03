@@ -1,12 +1,10 @@
 package com.grebesche.servicelauncher.ui;
 
-import com.grebesche.servicelauncher.actions.DeleteStepCallback;
+import com.grebesche.servicelauncher.actions.ActionCallback;
 import com.grebesche.servicelauncher.model.ExecutionStep;
-import javafx.event.EventHandler;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.DirectoryChooser;
@@ -20,7 +18,7 @@ public class ServiceStepEditorUI {
   private VBox container;
   private TextField folderField;
   private TextField commandTextField;
-  private DeleteStepCallback deleteStepCallback;
+  private ActionCallback deleteStepCallback;
 
   public ServiceStepEditorUI(int stepNumber, ExecutionStep step, Stage primaryStage) {
     this.stepNumber = stepNumber;
@@ -53,12 +51,12 @@ public class ServiceStepEditorUI {
 
     Button delete = new Button("delete");
     delete.setOnMouseClicked(event -> {
-      if(deleteStepCallback != null) deleteStepCallback.delete();
+      if (deleteStepCallback != null) deleteStepCallback.execute();
     });
     container.getChildren().add(delete);
   }
 
-  public void setDeleteStepCallback(DeleteStepCallback deleteStepCallback) {
+  public void setDeleteStepCallback(ActionCallback deleteStepCallback) {
     this.deleteStepCallback = deleteStepCallback;
   }
 
