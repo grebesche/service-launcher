@@ -18,12 +18,16 @@ public class ServiceStepEditorUI {
   private VBox container;
   private TextField folderField;
   private TextField commandTextField;
+  private Label stepNumberLabel;
   private ActionCallback deleteStepCallback;
 
   public ServiceStepEditorUI(int stepNumber, ExecutionStep step, Stage primaryStage) {
-    this.stepNumber = stepNumber;
+
     container = new VBox();
-    container.getChildren().add(new Label("Step " + stepNumber));
+    stepNumberLabel = new Label();
+    this.stepNumber = stepNumber;
+    setStepNumberLabel();
+    container.getChildren().add(stepNumberLabel);
 
     HBox stepFolderHBox = new HBox();
     Label stepFolderLabel = new Label("directory");
@@ -74,5 +78,14 @@ public class ServiceStepEditorUI {
 
   public Integer getStepNumber() {
     return stepNumber;
+  }
+
+  public void setStepNumber(int stepNumber) {
+    this.stepNumber = stepNumber;
+    setStepNumberLabel();
+  }
+
+  private void setStepNumberLabel() {
+    stepNumberLabel.setText("Step " + stepNumber);
   }
 }
